@@ -16,9 +16,11 @@
     "@mui/joy": "^5.0.0-beta.48",
     "@mui/material": "^6.1.6",
     "axios": "^1.7.7",
+    "material-react-table": "^3.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "sweetalert2": "^11.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

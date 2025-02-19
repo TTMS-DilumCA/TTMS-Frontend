@@ -1,0 +1,19 @@
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px; /* Reduced width of the scrollbar */
+  height: 6px; /* Reduced height of the scrollbar for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Transparent background for the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.3); /* Subtle color for the scrollbar thumb */
+  border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2); /* Inner shadow for the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.5); /* Slightly darker color for the scrollbar thumb on hover */
+}

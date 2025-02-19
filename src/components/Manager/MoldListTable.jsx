@@ -1,265 +1,186 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import {
   Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Typography,
-  Stack,
-  Collapse,
   Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TablePagination,
+  IconButton,
+  useMediaQuery,
+  Typography,
+  Button,
 } from "@mui/material";
-import { Edit, Delete, ExpandMore, ExpandLess } from "@mui/icons-material";
-import { Modal, ModalDialog, ModalClose } from "@mui/joy"; // Import from @mui/joy
-import NewMoldForm from "./NewMoldForm"; // Import the NewMoldForm component
-import axios from "axios"; // Import axios for API requests
+import { Input } from "@mui/joy";
+import { Search } from "@mui/icons-material";
+import { MaterialReactTable } from "material-react-table";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
+const MoldListTable = ({
+  data,
+  onEditClick,
+  onDeleteClick,
+  searchTerm,
+  onSearchChange,
+  isLoading,
+  onAddClick,
+}) => {
+  const isMobile = useMediaQuery("(max-width: 600px)");
 
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-const MoldListTable = ({ data, setData, order, setOrder }) => {
-  const [expandedRows, setExpandedRows] = useState({});
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [filteredData, setFilteredData] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5); // Set initial rows per page to 5
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editMold, setEditMold] = useState(null);
-
-  useEffect(() => {
-    let filtered = data;
-
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((row) => row.status === statusFilter);
-    }
-
-    setFilteredData(filtered);
-  }, [statusFilter, data]);
-
-  const handleExpandClick = (index) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleEditClick = (mold) => {
-    setEditMold(mold);
-    setEditModalOpen(true);
-  };
-
-  const handleEditClose = () => {
-    setEditModalOpen(false);
-    setEditMold(null);
-  };
-
-  const handleEditSubmit = async (updatedMold) => {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      await axios.put(`http://localhost:8080/api/mold/shared/${updatedMold.id}`, updatedMold, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
-      // Update the mold in the data
-      const updatedData = data.map((mold) =>
-        mold.id === updatedMold.id ? updatedMold : mold
-      );
-      setData(updatedData);
-      setFilteredData(updatedData);
-      setEditModalOpen(false);
-      setEditMold(null);
-    } catch (error) {
-      console.error("Error updating mold:", error);
-    }
-  };
-
-  const handleDeleteClick = async (id) => {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      await axios.delete(`http://localhost:8080/api/mold/shared/${id}`, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
-      // Remove the deleted mold from the state
-      const updatedData = data.filter((mold) => mold.id !== id);
-      setData(updatedData);
-      setFilteredData(updatedData);
-    } catch (error) {
-      console.error("Error deleting mold:", error);
-    }
-  };
+  // Define the table columns
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "moldNo",
+        header: "Mold No",
+        size: isMobile ? 60 : 100,
+      },
+      {
+        accessorKey: "itemNo",
+        header: "Item No",
+        size: isMobile ? 60 : 100,
+      },
+      {
+        accessorKey: "customer",
+        header: "Customer",
+        size: isMobile ? 60 : 100,
+      },
+      {
+        accessorKey: "shrinkageFactor",
+        header: "Shrinkage Factor",
+        size: isMobile ? 60 : 100,
+      },
+      {
+        accessorKey: "plateSize",
+        header: "Plate Size",
+        size: isMobile ? 60 : 100,
+      },
+      {
+        accessorKey: "plateWeight",
+        header: "Plate Weight",
+        size: isMobile ? 60 : 100,
+      },
+      {
+        accessorKey: "investmentNo",
+        header: "Investment No",
+        size: isMobile ? 60 : 100,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        size: isMobile ? 60 : 100,
+        Cell: ({ cell }) => (
+          <Chip
+            label={cell.getValue()}
+            color={cell.getValue() === "completed" ? "success" : "warning"}
+            variant="outlined"
+          />
+        ),
+      },
+      {
+        accessorKey: "actions",
+        header: "Actions",
+        size: isMobile ? 50 : 50,
+        Cell: ({ row }) => (
+          <Box display="flex" flexDirection="column" gap="4px">
+            <IconButton
+              size="small"
+              onClick={() => onEditClick(row.original)}
+              sx={{
+                color: "#ff3d00",
+                "&:hover": {
+                  color: "#d32f2f",
+                },
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => onDeleteClick(row.original.id)}
+              sx={{
+                color: "#f44336",
+                "&:hover": {
+                  color: "#d32f2f",
+                },
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        ),
+      },
+    ],
+    [isMobile, onEditClick, onDeleteClick]
+  );
 
   return (
-    <React.Fragment>
-      <Box
-        sx={{
-          borderRadius: 'sm',
-          py: 2,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 1.5,
-          '& > *': {
-            minWidth: { xs: '120px', md: '160px' },
+    <Box>
+      {/* Search bar */}
+      <Box display="flex" justifyContent="center" alignItems="center" mb={2} mt={2}>
+        <Input
+          placeholder="Search"
+          value={searchTerm}
+          onChange={onSearchChange}
+          startDecorator={<Search />}
+          sx={{ borderRadius: 19, width: "100%", maxWidth: "600px", bgcolor: "#f1f3f4", height: 40, marginTop: 12 }}
+        />
+      </Box>
+
+      {/* Add New Mould Button */}
+      <Box display="flex" justifyContent="center" alignItems="center" mb={4}>
+        <Button
+          variant="solid"
+          color="primary"
+          sx={{
+            backgroundColor: "#1976d2", // Initial color
+            color: "#fff", // Text color
+            borderRadius: 3,
+            padding: "10px 20px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            textTransform: "none",
+            boxShadow: "0 3px 5px rgba(0, 0, 0, 0.2)",
+            "&:hover": {
+              backgroundColor: "#1565c0", // Darker shade of blue for hover effect
+              transform: "scale(1.05)",
+            },
+          }}
+          onClick={onAddClick}
+        >
+          +Add New Mould
+        </Button>
+      </Box>
+
+      {/* Table */}
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        All Moulds
+      </Typography>
+      <MaterialReactTable
+        columns={columns}
+        data={data}
+        enableRowVirtualization
+        muiTableBodyProps={{
+          sx: {
+            height: "400px",
+            overflowY: "auto",
+            fontSize: "0.75rem",
           },
         }}
-      >
-        <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel>Status</InputLabel>
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            label="Status"
-          >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="completed">Completed</MenuItem>
-            <MenuItem value="ongoing">Ongoing</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
-      <TableContainer sx={{ borderRadius: 3, boxShadow: 3 }}>
-        <Table sx={{ minWidth: 650, backgroundColor: "white" }} aria-label="mould table">
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-              <TableCell />
-              <TableCell>Tool No</TableCell>
-              <TableCell>Item No</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Shrinkage Factor</TableCell>
-              <TableCell>Plate Size</TableCell>
-              <TableCell>Plate Weight</TableCell>
-              <TableCell>Investment No</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredData.length > 0 ? (
-              filteredData
-                .sort(getComparator(order, "moldNo"))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => (
-                  <React.Fragment key={index}>
-                    <TableRow hover>
-                      <TableCell>
-                        <IconButton
-                          aria-label="expand row"
-                          size="small"
-                          onClick={() => handleExpandClick(index)}
-                        >
-                          {expandedRows[index] ? <ExpandLess /> : <ExpandMore />}
-                        </IconButton>
-                      </TableCell>
-                      <TableCell>{row.moldNo}</TableCell>
-                      <TableCell>{row.itemNo}</TableCell>
-                      <TableCell>{row.customer}</TableCell>
-                      <TableCell>{row.shrinkageFactor}</TableCell>
-                      <TableCell>{row.plateSize}</TableCell>
-                      <TableCell>{row.plateWeight}</TableCell>
-                      <TableCell>{row.investmentNo}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.status}
-                          color={row.status === "completed" ? "success" : "warning"}
-                          variant="outlined"
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <IconButton color="primary" onClick={() => handleEditClick(row)}>
-                          <Edit />
-                        </IconButton>
-                        <IconButton color="secondary" onClick={() => handleDeleteClick(row.id)}>
-                          <Delete />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={10} style={{ paddingBottom: 0, paddingTop: 0 }}>
-                        <Collapse in={expandedRows[index]} timeout="auto" unmountOnExit>
-                          <Box margin={2}>
-                            <Typography variant="body2" color="textSecondary">
-                              {row.description}
-                            </Typography>
-                          </Box>
-                        </Collapse>
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                ))
-            ) : (
-              // Empty state message
-              <TableRow>
-                <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
-                  <Stack alignItems="center" spacing={2}>
-                    <Typography variant="body1" color="textSecondary">
-                      No moulds found
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Try adjusting your search or add a new mould to the list.
-                    </Typography>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[5]}
-          component="div"
-          count={filteredData.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </TableContainer>
-
-      {/* Edit Modal */}
-      <Modal open={editModalOpen} onClose={handleEditClose}>
-        <ModalDialog>
-          <ModalClose />
-          {editMold && (
-            <NewMoldForm
-              onClose={handleEditClose}
-              onAddMold={handleEditSubmit}
-              initialData={editMold}
-            />
-          )}
-        </ModalDialog>
-      </Modal>
-    </React.Fragment>
+        muiTableHeadCellProps={{
+          sx: {
+            padding: "2px",
+            fontSize: "0.75rem",
+          },
+        }}
+        muiTableBodyCellProps={{
+          sx: {
+            padding: "3px",
+            fontSize: "0.75rem",
+          },
+        }}
+        state={{
+          isLoading: isLoading, // Show loading state if no data
+        }}
+      />
+    </Box>
   );
 };
 

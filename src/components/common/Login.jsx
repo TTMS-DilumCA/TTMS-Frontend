@@ -69,7 +69,7 @@ const Login = () => {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(/loginimg3.png)', // Replace with the path to your image
+            backgroundImage: 'url(/loginimg.jpeg)', // Replace with the path to your image
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
