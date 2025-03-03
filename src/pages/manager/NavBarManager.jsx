@@ -71,7 +71,7 @@ const NavBarManager = () => {
           </Link>
           <Link
             component={RouterLink}
-            to="/machine-processes"
+            to="/process-details"
             underline="none"
             color="textPrimary"
             variant="body1"

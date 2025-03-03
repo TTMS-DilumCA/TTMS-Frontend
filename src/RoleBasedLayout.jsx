@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import NavBarManager from './pages/manager/NavBarManager';
 import NavBarOperator1 from './pages/machineOperator_01/NavBarOperator1';
 import NavBarOperator2 from './pages/machineOperator_02/NavBarOperator2';
 import Footer from './components/common/Footer';
 
 function RoleBasedLayout({ role, children }) {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log('User token:', token);
+  }, []);
   let NavBar;
   switch (role) {
     case 'ROLE_MANAGER':

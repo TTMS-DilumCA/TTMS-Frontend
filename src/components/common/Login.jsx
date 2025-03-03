@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const theme = createTheme();
@@ -24,6 +24,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if the input fields are autofilled and update the state
@@ -56,6 +57,11 @@ const Login = () => {
     } catch (error) {
       setError('Invalid email or password');
     }
+  };
+
+  const handleForgotPasswordClick = (e) => {
+    e.preventDefault();
+    navigate('/forgot-password');
   };
 
   return (
@@ -132,7 +138,7 @@ const Login = () => {
                 {error && <Typography color="error">{error}</Typography>}
                 <Grid container>
                   <Grid item xs>
-                    <Link href="#" variant="body2">
+                    <Link href="#" variant="body2" onClick={handleForgotPasswordClick}>
                       Forgot password?
                     </Link>
                   </Grid>
