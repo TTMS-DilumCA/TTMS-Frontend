@@ -34,7 +34,7 @@ const Users = () => {
       try {
         const token = localStorage.getItem("token");
         const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.get("http://localhost:8080/api/users", {
+        const response = await axios.get("http://localhost:8080/api/manager/users", {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
           },
@@ -80,18 +80,27 @@ const Users = () => {
     setEditModalOpen(false);
     setEditUser(null);
   };
-
   const handleEditSubmit = async (updatedUser) => {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      await axios.put(`http://localhost:8080/api/users/${updatedUser.id}`, updatedUser, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
+      const token = localStorage.getItem("token");
+      console.log("Token being sent:", token);
+  
+      const { firstname, lastname, fullname, email, role, epfNo } = updatedUser;
+      const payload = { firstname, lastname, fullname, email, role, epfNo };
+  
+      const response = await axios.put(
+        `http://localhost:8080/api/manager/update-user/${updatedUser.id}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
       // Update the user in the data
       const updatedData = userData.map((user) =>
-        user.id === updatedUser.id ? updatedUser : user
+        user.id === updatedUser.id ? response.data : user
       );
       setUserData(updatedData);
       setFilteredData(updatedData);
@@ -99,6 +108,13 @@ const Users = () => {
       setEditUser(null);
     } catch (error) {
       console.error("Error updating user:", error);
+      if (error.response) {
+        console.error("Response Data:", error.response.data);
+        console.error("Response Status:", error.response.status);
+      }
+      if (error.response && error.response.status === 403) {
+        alert("You do not have permission to perform this action.");
+      }
     }
   };
 
@@ -115,7 +131,7 @@ const Users = () => {
       if (result.isConfirmed) {
         try {
           const refreshToken = localStorage.getItem("refreshToken");
-          await axios.delete(`http://localhost:8080/api/users/${id}`, {
+          await axios.delete(`http://localhost:8080/api/manager/delete-user/${id}`, {
             headers: {
               Authorization: `Bearer ${refreshToken}`,
             },

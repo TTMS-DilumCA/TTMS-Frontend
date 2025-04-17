@@ -42,17 +42,15 @@ const MoldDetails = () => {
   const handleSearch = (event) => {
     const value = event.target.value;
     setSearchTerm(value);
-
+  
     // Filter data based on search term
     const filtered = mouldData.filter((row) =>
-      row.itemNo.toLowerCase().includes(value.toLowerCase()) ||
       row.moldNo.toLowerCase().includes(value.toLowerCase()) ||
       row.customer.toLowerCase().includes(value.toLowerCase()) ||
       row.status.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredData(filtered);
   };
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 

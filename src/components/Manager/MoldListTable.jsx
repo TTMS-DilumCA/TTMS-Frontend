@@ -33,11 +33,6 @@ const MoldListTable = ({
         size: isMobile ? 60 : 100,
       },
       {
-        accessorKey: "itemNo",
-        header: "Item No",
-        size: isMobile ? 60 : 100,
-      },
-      {
         accessorKey: "customer",
         header: "Customer",
         size: isMobile ? 60 : 100,

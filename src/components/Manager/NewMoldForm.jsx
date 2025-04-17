@@ -5,7 +5,6 @@ import axios from "axios";
 
 const NewMoldForm = ({ onClose, onAddMold, initialData }) => {
   const [formData, setFormData] = useState({
-    itemNo: "",
     moldNo: "",
     documentNo: "",
     customer: "",
@@ -53,12 +52,6 @@ const NewMoldForm = ({ onClose, onAddMold, initialData }) => {
         {initialData ? "Edit Mold" : "Add New Mold"}
       </Typography>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <FormControl>
-            <FormLabel>Item No</FormLabel>
-            <Input name="itemNo" value={formData.itemNo} onChange={handleChange} required />
-          </FormControl>
-        </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl>
             <FormLabel>Mold No</FormLabel>
