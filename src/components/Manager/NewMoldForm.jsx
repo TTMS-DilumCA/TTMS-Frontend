@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, FormControl, FormLabel, Input, Select, Option, Textarea, Typography, Grid } from "@mui/joy";
+import { Box, Button, FormControl, FormLabel, Input, Textarea, Typography } from "@mui/joy";
+import { Grid } from "@mui/material"; // Use Grid from @mui/material
 import axios from "axios";
 
 const NewMoldForm = ({ onClose, onAddMold, initialData }) => {
   const [formData, setFormData] = useState({
-    itemNo: "",
     moldNo: "",
     documentNo: "",
     customer: "",
@@ -30,13 +30,6 @@ const NewMoldForm = ({ onClose, onAddMold, initialData }) => {
     }));
   };
 
-  const handleSelectChange = (name) => (event, newValue) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: newValue,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -59,12 +52,6 @@ const NewMoldForm = ({ onClose, onAddMold, initialData }) => {
         {initialData ? "Edit Mold" : "Add New Mold"}
       </Typography>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <FormControl>
-            <FormLabel>Item No</FormLabel>
-            <Input name="itemNo" value={formData.itemNo} onChange={handleChange} required />
-          </FormControl>
-        </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl>
             <FormLabel>Mold No</FormLabel>
@@ -116,10 +103,24 @@ const NewMoldForm = ({ onClose, onAddMold, initialData }) => {
         <Grid item xs={12}>
           <FormControl>
             <FormLabel>Status</FormLabel>
-            <Select name="status" value={formData.status} onChange={handleSelectChange("status")} required>
-              <Option value="completed">Completed</Option>
-              <Option value="ongoing">Ongoing</Option>
-            </Select>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              required
+              style={{
+                width: '100%',
+                padding: '8px',
+                borderRadius: '4px',
+                border: '1px solid #ccc',
+                backgroundColor: '#fff',
+                fontSize: '16px',
+                fontFamily: 'inherit',
+              }}
+            >
+              <option value="completed">Completed</option>
+              <option value="ongoing">Ongoing</option>
+            </select>
           </FormControl>
         </Grid>
       </Grid>

@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const theme = createTheme();
@@ -24,6 +24,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if the input fields are autofilled and update the state
@@ -58,6 +59,11 @@ const Login = () => {
     }
   };
 
+  const handleForgotPasswordClick = (e) => {
+    e.preventDefault();
+    navigate('/forgot-password');
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Grid container component="main" sx={{ height: '100vh' }}>
@@ -69,7 +75,7 @@ const Login = () => {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(/loginimg3.png)', // Replace with the path to your image
+            backgroundImage: 'url(/loginimg.jpeg)', // Replace with the path to your image
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -131,17 +137,12 @@ const Login = () => {
                 </Button>
                 {error && <Typography color="error">{error}</Typography>}
                 <Grid container>
-                  <Grid item xs>
-                    <Link href="#" variant="body2">
-                      Forgot password?
-                    </Link>
-                  </Grid>
-                  <Grid item>
-                    <Link href="#" variant="body2">
-                      {"Don't have an account? Sign Up"}
-                    </Link>
-                  </Grid>
-                </Grid>
+  <Grid item xs>
+    <Link href="#" variant="body2" onClick={handleForgotPasswordClick}>
+      Forgot password?
+    </Link>
+  </Grid>
+</Grid>
               </Box>
             </Box>
           </Container>

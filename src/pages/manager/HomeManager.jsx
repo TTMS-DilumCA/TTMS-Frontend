@@ -15,6 +15,7 @@ import Footer from "../../components/common/Footer";
 
 const HomeManager = () => {
   const navigate = useNavigate();
+  
 
   return (
     <>
@@ -70,6 +71,7 @@ const HomeManager = () => {
                   description:
                     "See details about ongoing\nand finished machine processes",
                   icon: <LanOutlined />,
+                  onClick: () => navigate("/process-details"),
                 },
                 {
                   title: "Generate Reports",

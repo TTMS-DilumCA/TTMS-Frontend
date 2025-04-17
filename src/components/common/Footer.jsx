@@ -18,7 +18,7 @@ const Footer = () => {
       <Typography variant="body2" color="textSecondary">
         {'Copyright © '}
         <Link color="inherit" href="https://yourwebsite.com/">
-          Your Website
+         Tool Time Management System
         </Link>{' '}
         {new Date().getFullYear()}
         {'.'}

@@ -2,21 +2,21 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
-  Typography,
+  Modal,
 } from "@mui/material";
-import { Search } from "@mui/icons-material";
-import { Input, Button, Modal, ModalDialog, ModalClose } from "@mui/joy";
+import { ModalDialog, ModalClose } from "@mui/joy";
 import axios from "axios";
+import Swal from "sweetalert2";
+import NewMoldForm from "../../components/Manager/NewMoldForm";
 import MoldListTable from "../../components/Manager/MoldListTable";
-import NewMoldForm from "../../components/Manager/NewMoldForm"; // Import the NewMoldForm component
 
 const MoldDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [mouldData, setMouldData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [order, setOrder] = useState("desc");
-  const [selected, setSelected] = useState([]);
-  const [open, setOpen] = useState(false); // State to manage modal open/close
+  const [open, setOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editMold, setEditMold] = useState(null);
 
   useEffect(() => {
     // Fetch data from the backend API
@@ -42,17 +42,15 @@ const MoldDetails = () => {
   const handleSearch = (event) => {
     const value = event.target.value;
     setSearchTerm(value);
-
+  
     // Filter data based on search term
     const filtered = mouldData.filter((row) =>
-      row.itemNo.toLowerCase().includes(value.toLowerCase()) ||
       row.moldNo.toLowerCase().includes(value.toLowerCase()) ||
       row.customer.toLowerCase().includes(value.toLowerCase()) ||
       row.status.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredData(filtered);
   };
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -61,60 +59,105 @@ const MoldDetails = () => {
     setFilteredData((prevData) => [newMold, ...prevData]);
   };
 
-  return (
-    <Container maxWidth="xl">
-      {/* Search bar */}
-      <Box display="flex" justifyContent="center" alignItems="center" mb={4} mt={2}>
-        <Input
-          placeholder="Search"
-          value={searchTerm}
-          onChange={handleSearch}
-          startDecorator={<Search />}
-          sx={{ borderRadius: 19, width: "100%", maxWidth: "600px", bgcolor: "#f1f3f4", height: 40, marginTop: 12 }}
-        />
-      </Box>
-      <Box display="flex" justifyContent="center" alignItems="center" mb={4}>
-        <Button
-          variant="solid"
-          color="primary"
-          sx={{
-            borderRadius: 3,
-            padding: '10px 20px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            textTransform: 'none',
-            boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-            transition: 'background-color 0.3s, transform 0.3s',
-            '&:hover': {
-              backgroundColor: '#1976d2', // Darker shade of blue for hover effect
-              transform: 'scale(1.05)',
+  const handleEditClick = (mold) => {
+    setEditMold(mold);
+    setEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditModalOpen(false);
+    setEditMold(null);
+  };
+
+  const handleEditSubmit = async (updatedMold) => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      await axios.put(`http://localhost:8080/api/mold/shared/${updatedMold.id}`, updatedMold, {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+      // Update the mold in the data
+      const updatedData = mouldData.map((mold) =>
+        mold.id === updatedMold.id ? updatedMold : mold
+      );
+      setMouldData(updatedData);
+      setFilteredData(updatedData);
+      setEditModalOpen(false);
+      setEditMold(null);
+    } catch (error) {
+      console.error("Error updating mold:", error);
+    }
+  };
+
+  const handleDeleteClick = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will not be able to recover this mold!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const refreshToken = localStorage.getItem("refreshToken");
+          await axios.delete(`http://localhost:8080/api/mold/shared/${id}`, {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`,
             },
-          }}
-          onClick={handleOpen}
-        >
-          Add New Mould
-        </Button>
-      </Box>
+          });
+          // Remove the deleted mold from the state
+          const updatedData = mouldData.filter((mold) => mold.id !== id);
+          setMouldData(updatedData);
+          setFilteredData(updatedData);
+          Swal.fire("Deleted!", "Mold has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting mold:", error);
+          Swal.fire("Error", "Failed to delete the mold. Please try again.", "error");
+        }
+      }
+    });
+  };
+
+  return (
+    <Container maxWidth={false}
+      sx={{
+        width: '90%',
+        maxWidth: 'none',
+        margin: '0 auto',
+      }}>
+      <MoldListTable
+        data={filteredData}
+        onEditClick={handleEditClick}
+        onDeleteClick={handleDeleteClick}
+        searchTerm={searchTerm}
+        onSearchChange={handleSearch}
+        isLoading={filteredData.length === 0}
+        onAddClick={handleOpen}
+      />
 
       {/* Modal Dialog */}
       <Modal open={open} onClose={handleClose}>
         <ModalDialog>
           <ModalClose />
-          <NewMoldForm onClose={handleClose} onAddMold={handleAddMold} /> {/* Pass handleAddMold to NewMoldForm */}
+          <NewMoldForm onClose={handleClose} onAddMold={handleAddMold} />
         </ModalDialog>
       </Modal>
 
-      {/* Table */}
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
-        All Moulds
-      </Typography>
-      <MoldListTable
-        data={filteredData}
-        order={order}
-        setOrder={setOrder}
-        selected={selected}
-        setSelected={setSelected}
-      />
+      {editMold && (
+        <Modal open={editModalOpen} onClose={handleEditClose}>
+          <ModalDialog>
+            <ModalClose />
+            <NewMoldForm
+              onClose={handleEditClose}
+              onAddMold={handleEditSubmit}
+              initialData={editMold}
+            />
+          </ModalDialog>
+        </Modal>
+      )}
     </Container>
   );
 };
